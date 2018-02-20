@@ -86,7 +86,7 @@ define windows_firewall::exception(
   Optional[Variant[Integer[1, 65535], Enum['any']]] $remote_port = undef,
   $remote_ip = '',
   $program = undef,
-  $display_name = '',
+  String[0, 255] $display_name = '',
   $description = '',
   Variant[Enum['yes', 'no', 'true', 'false'], Boolean] $allow_edge_traversal = 'no', # lint:ignore:quoted_booleans
 
@@ -108,35 +108,32 @@ define windows_firewall::exception(
         }
       }
       $fw_command = 'portopening'
-      if empty($protocol) {
-        if(!empty($remote_port) or !empty($local_port)) {
+      if $remote_port or $local_port {
+        unless $protocol {
           fail 'Sorry, protocol is required, when defining local or remote port'
         }
-      } else {
-        if $protocol =~ /ICMPv(4|6)/ {
+      }
+      if $protocol =~ /^ICMPv(4|6)/ {
           $allow_context = "protocol=${protocol}"
+      } else {
+        if $local_port {
+          $local_port_cmd = "${local_port_param}=${local_port}"
         } else {
-          if empty($local_port) {
-            $local_port_cmd = ''
-          } else {
-            $local_port_cmd = "${local_port_param}=${local_port}"
-          }
-          if empty($remote_port) {
-            $remote_port_cmd = ''
-          } else {
-            $remote_port_cmd = " ${remote_port_param}=${remote_port}"
-          }
-          $allow_context = "protocol=${protocol} ${local_port_cmd}${remote_port_cmd}"
+          $local_port_cmd = ''
         }
+        if $remote_port {
+          $remote_port_cmd = "${remote_port_param}=${remote_port}"
+        } else {
+          $remote_port_cmd = ''
+        }
+        # Strip whitespace that in case remore_port_cmd is empty
+        $allow_context = rstrip("protocol=${protocol} ${local_port_cmd} ${remote_port_cmd}")
       }
     } else {
       $fw_command = 'allowedprogram'
       $allow_context = "program=\"${program}\""
       validate_absolute_path($program)
     }
-
-    # Validate common parameters
-    validate_slength($display_name,255)
 
     case $::operatingsystemversion {
       'Windows Server 2012', 'Windows Server 2008', 'Windows Server 2008 R2', 'Windows Vista','Windows 7','Windows 8': {
