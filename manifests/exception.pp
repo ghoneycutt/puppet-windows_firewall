@@ -84,11 +84,11 @@ define windows_firewall::exception(
   Optional[Enum['TCP', 'UDP', 'ICMPv4', 'ICMPv6']] $protocol = undef,
   Optional[Variant[Integer[1, 65535], Enum['any']]] $local_port = undef,
   Optional[Variant[Integer[1, 65535], Enum['any']]] $remote_port = undef,
-  Optional[String] $remote_ip = '',
+  Optional[String] $remote_ip = undef,
   Optional[String] $program = undef,
   String[0, 255] $display_name = '',
   String $description = '',
-  Boolean $allow_edge_traversal = true,
+  Boolean $allow_edge_traversal = false,
 ) {
 
     # Check if we're allowing a program or port/protocol and validate accordingly
