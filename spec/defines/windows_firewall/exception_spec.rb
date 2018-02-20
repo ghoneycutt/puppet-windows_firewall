@@ -396,7 +396,7 @@ describe 'windows_firewall::exception', type: :define do
       it do
         expect do
           is_expected.to contain_exec('set rule Windows Remote Management')
-        end.to raise_error(Puppet::Error)
+        end.to raise_error(Puppet::Error, /fubar/)
       end
     end
   end
@@ -418,7 +418,7 @@ describe 'windows_firewall::exception', type: :define do
       it do
         expect do
           is_expected.to contain_exec('set rule Windows Remote Management')
-        end.to raise_error(Puppet::Error)
+        end.to raise_error(Puppet::Error, /fubar/)
       end
     end
   end
@@ -440,7 +440,7 @@ describe 'windows_firewall::exception', type: :define do
       it do
         expect do
           is_expected.to contain_exec('set rule Windows Remote Management')
-        end.to raise_error(Puppet::Error)
+        end.to raise_error(Puppet::Error, /fubar/)
       end
     end
   end
